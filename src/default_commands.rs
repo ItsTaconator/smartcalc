@@ -1,7 +1,7 @@
 //! Built-in commands
 use std::io::stdout;
 
-use crossterm::{terminal, ExecutableCommand};
+use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use inline_colorization::*;
 use variable::Variable;
 
@@ -51,6 +51,16 @@ pub fn list_variables(_: &String) {
             "{} - {:.25}...",
             actual_variables[i].key, actual_variables[i].value
         );
+    }
+}
+
+pub fn show_history(_: &String) {
+    let history = HISTORY.lock().unwrap();
+    let fixed: Vec<String> = history.iter().map(|elem| elem.replace("\n", "")).collect();
+    println!("{color_blue}History{RESET}\n{}", fixed.join("\n"));
+    if fixed.len() == 0 {
+        _ = stdout().queue(cursor::MoveUp(1));
+        println!("{ITALIC}Very quiet here{RESET}");
     }
 }
 
@@ -125,7 +135,14 @@ impl DefaultCommands {
             name: "showvariables",
             help_text: Some("Lists all variables"),
             action: list_variables,
-            aliases: Some(vec!["listvariables", "vars", "showvars"]),
+            aliases: Some(vec!["listvariables", "vars", "showvars", "showv"]),
+        };
+
+        let show_history = Command {
+            name: "showhistory",
+            help_text: Some("Shows expression history"),
+            action: show_history,
+            aliases: Some(vec!["history", "showh"]),
         };
 
         let exit = Command {
@@ -184,6 +201,7 @@ impl DefaultCommands {
         let mut commands = COMMANDS.lock().unwrap();
         commands.insert(help.name.to_owned(), help);
         commands.insert(show_variables.name.to_owned(), show_variables);
+        commands.insert(show_history.name.to_owned(), show_history);
         commands.insert(exit.name.to_owned(), exit);
         commands.insert(clear.name.to_owned(), clear);
         commands.insert(clearhistory.name.to_owned(), clearhistory);
