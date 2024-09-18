@@ -1,0 +1,23 @@
+[package]
+name = "smartcalc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+compute-pi = "1.0.0"
+crossterm = "0.28.1"
+evalexpr = "11.3.0"
+inline_colorization = "0.1.6"
+lazy_static = "1.5.0"
+linked-hash-map = "0.5.6"
+regex = "1.10.6"
+regex-split = "0.1.0"
+rug = "1.26.1"
+serde = "1.0.210"
+serde_derive = "1.0.210"
+toml = "0.8.19"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true
