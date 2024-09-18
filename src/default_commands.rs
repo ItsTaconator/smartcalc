@@ -28,7 +28,7 @@ pub fn help(_: &String) {
     }
 }
 
-pub fn list_variables(_: &String) {
+pub fn show_variables(_: &String) {
     let variables = VARIABLES.lock().unwrap();
     let builtin_var_count = BUILTIN_VARIABLE_COUNT.lock().unwrap();
     println!("{color_cyan}{ITALIC}Built-in:{RESET}");
@@ -134,7 +134,7 @@ impl DefaultCommands {
         let show_variables = Command {
             name: "showvariables",
             help_text: Some("Lists all variables"),
-            action: list_variables,
+            action: show_variables,
             aliases: Some(vec!["listvariables", "vars", "showvars", "showv"]),
         };
 
