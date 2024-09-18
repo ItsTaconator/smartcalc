@@ -21,6 +21,7 @@ pub mod invalid_expression;
 pub mod parser;
 pub mod variable;
 pub mod variables;
+pub mod custom_io;
 
 const ITALIC: &str = "\x1b[3m";
 const RESET: &str = "\x1b[0m";
@@ -67,8 +68,7 @@ fn main() {
         );
         io::stdout().flush().unwrap();
 
-        let stdin = io::stdin();
-        _ = stdin.read_line(input);
+        *input = custom_io::read_line().unwrap();
         _ = parse(input.clone());
     }
 }
