@@ -9,7 +9,7 @@ use crate::{command::Command, *};
 
 pub fn help(_: &String) {
     let commands = COMMANDS.lock().unwrap();
-    println!("SmartCalc is an advanced command-line calculator with features such as variables, comments, line references, and continuation. For an example of these features, run the {color_yellow}features{color_reset} command\n\n{color_blue}Commands{color_reset}\nName (Aliases) - Help Text\n");
+    println!("SmartCalc is an advanced command-line calculator with features such as variables, comments, line references, and continuation.\nFor an example of these features, run the {color_yellow}features{color_reset} command\n\n{color_blue}Commands{color_reset}\nName (Aliases) - Help Text\n");
     for (name, command) in commands.iter() {
         let aliases = &command.aliases;
 
@@ -169,7 +169,7 @@ impl DefaultCommands {
                 clear_history(&params);
                 clear_terminal(&params);
             },
-            aliases: None,
+            aliases: Some(vec!["cleara"]),
         };
 
         let features = Command {
