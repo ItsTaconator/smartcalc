@@ -143,26 +143,49 @@ fn parse_commands(expression: &String) -> bool {
 
 fn handle_continuation(expression: &mut String) -> bool {
     let expression_clone = expression.to_owned();
-    let expression_trimmed = expression_clone.trim();
+    let mut expression_trimmed = expression_clone.trim().to_owned();
 
     let operators = OPERATORS.lock().unwrap();
 
-    for operator in operators.iter() {
-        if expression_trimmed.starts_with(operator) {
-            let history = HISTORY.lock().unwrap();
-            let expr = history.front();
-            if expr.is_none() {
-                println!(
-                    "{color_red}No expressions in history to use for continuation{color_reset}"
-                );
-                return false;
-            } else {
-                *expression = format!("({}){expression}", expr.unwrap());
-            }
+    let mut i = 0usize;
 
+    loop {
+        let mut encountered_operator = false;
+        if i > 0 {
+            let mut expr_chars = expression_trimmed.chars();
+            expr_chars.next();
+            expression_trimmed = expr_chars.as_str().to_owned();
+        }
+
+        for operator in operators.iter() {
+            if expression_trimmed.starts_with(operator) {
+                encountered_operator = true;
+
+                let history = HISTORY.lock().unwrap();
+                let expr = history.get(i);
+                i += 1;
+
+                if expr.is_none() {
+                    println!(
+                        "{color_red}No expressions in history to use for continuation{color_reset}"
+                    );
+                    return false;
+                } else {
+                    let mut expr = expr.unwrap().to_owned();
+                    expr = expr.strip_suffix('\n').unwrap_or(&expr).to_owned();
+                    expression_trimmed = format!("({}){expression_trimmed}", expr);
+
+                    break;
+                }
+            }
+        }
+
+        if !encountered_operator {
             break;
         }
     }
+
+    *expression = format!("{}{expression_trimmed}", "(".repeat(i));
 
     true
 }
