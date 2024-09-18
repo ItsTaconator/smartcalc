@@ -15,6 +15,7 @@ use crate::{invalid_expression::InvalidExpression, variable::Variable, *};
 
 pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
     let mut expression = expression.to_string();
+    let expression_raw = expression.to_owned();
 
     let config = CONFIG.lock().unwrap();
     let time = config.as_ref().unwrap().time_expression;
@@ -85,7 +86,7 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
     if result {
         let mut history = HISTORY.lock().unwrap();
 
-        history.push_front(expression.to_owned());
+        history.push_front(expression_raw);
     }
 
     Ok(())
