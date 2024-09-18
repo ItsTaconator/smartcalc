@@ -84,8 +84,6 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
 
     if result {
         let mut history = HISTORY.lock().unwrap();
-        #[cfg(debug_assertions)]
-        println!("{ITALIC}History: {}{RESET}", Into::<Vec<String>>::into(history.clone()).join(", "));
 
         history.push_front(expression.to_owned());
     }
