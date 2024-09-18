@@ -262,17 +262,26 @@ fn parse_variables(expression: &mut String) -> Result<(), InvalidExpression> {
         }
     }
 
+    let re2 = Regex::new("^(?<leftparen>\\(*)(?<value>\\D+)(?<rightparen>\\)*)").unwrap();
+
     for (i, str) in result2.iter_mut().enumerate() {
         // Skip operators and numbers
         if i % 2 != 0 || str.parse::<f64>().is_ok() {
             continue;
         }
 
-        let variable = variables.get(str.clone());
+        let mut str_copy = str.to_owned();
+        str_copy = str_copy.replace("(", "");
+        str_copy = str_copy.replace(")", "");
+
+        let variable = variables.get(str_copy);
         if let Some(variable) = variable {
             let value = variable.value;
             let string = value.to_string();
-            *str = string;
+
+            *str = re2
+                .replace_all(str, format!("${{leftparen}}{string}${{rightparen}}"))
+                .to_string();
         }
     }
 
