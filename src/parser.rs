@@ -84,6 +84,9 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
 
     if result {
         let mut history = HISTORY.lock().unwrap();
+        #[cfg(debug_assertions)]
+        println!("{ITALIC}History: {}{RESET}", Into::<Vec<String>>::into(history.clone()).join(", "));
+
         history.push_front(expression.to_owned());
     }
 
@@ -108,8 +111,8 @@ fn calculate_and_show_result(expression: &String) -> bool {
 fn parse_line_references(expression: &mut String) -> Result<(), InvalidExpression> {
     let history = HISTORY.lock().unwrap();
 
-    for i in 0..history.len() {
-        *expression = expression.replace(&format!("[{}]", i + 1), &history[i]);
+    for i in (0..history.len()).rev() {
+        *expression = expression.replace(&format!("[{}]", i), &history[i]);
     }
 
     Ok(())
