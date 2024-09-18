@@ -1,11 +1,15 @@
 use std::{
     collections::VecDeque,
-    io::{self, Write},
+    io::{self, stdout, Write},
     process::exit,
     time::Instant,
 };
 
-use crossterm::{cursor, terminal::size, ExecutableCommand, QueueableCommand};
+use crossterm::{
+    cursor::{self, MoveUp},
+    terminal::{self, size},
+    ExecutableCommand, QueueableCommand,
+};
 use evalexpr::eval;
 use inline_colorization::*;
 use regex::Regex;
@@ -331,6 +335,13 @@ fn parse_variable_declaration(expression: Vec<&str>) -> Result<(), InvalidExpres
     let mut variables = VARIABLES.lock().unwrap();
 
     variables.add(variable);
+
+    _ = stdout()
+        .queue(MoveUp(1))
+        .unwrap()
+        .queue(terminal::Clear(crossterm::terminal::ClearType::CurrentLine));
+
+    println!("{color_blue}[{color_cyan}*{color_blue}]>{color_reset} {name} = {value_str}");
 
     println!("{color_blue}{name} = {value}{color_reset}");
 
