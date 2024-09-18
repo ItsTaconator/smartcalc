@@ -211,11 +211,13 @@ fn parse_variables(expression: &mut String) -> Result<(), InvalidExpression> {
     for (name, variable) in variables.to_owned().into_iter() {
         if expression.contains(&name) {
             variables_in_expression = true;
+            break;
         } else {
             if let Some(aliases) = variable.aliases {
                 for alias in aliases.iter() {
                     if expression.contains(alias) {
                         variables_in_expression = true;
+                        break;
                     }
                 }
             }
