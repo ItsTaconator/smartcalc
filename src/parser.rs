@@ -68,7 +68,7 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
 
     _ = parse_line_references(&mut expression);
 
-    if !handle_continuation(&mut expression) {
+    if !parse_continuations(&mut expression) {
         return Ok(());
     }
 
@@ -141,7 +141,7 @@ fn parse_commands(expression: &String) -> bool {
     false
 }
 
-fn handle_continuation(expression: &mut String) -> bool {
+fn parse_continuations(expression: &mut String) -> bool {
     let expression_clone = expression.to_owned();
     let mut expression_trimmed = expression_clone.trim().to_owned();
 
