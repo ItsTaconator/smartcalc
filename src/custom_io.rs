@@ -84,3 +84,13 @@ pub fn read_line() -> std::io::Result<String> {
 
     Ok(line)
 }
+
+/// This is a helper function that replaces the `#` in `[#]> expression` with `marker`
+pub fn mark_special(marker: &str, expression: &str) {
+    _ = stdout()
+        .queue(cursor::MoveUp(1))
+        .unwrap()
+        .queue(terminal::Clear(crossterm::terminal::ClearType::CurrentLine));
+
+    println!("{color_blue}[{color_cyan}{marker}{color_blue}]> {RESET}{expression}");
+}
