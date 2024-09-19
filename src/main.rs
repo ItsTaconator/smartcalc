@@ -54,6 +54,8 @@ fn main() {
     drop(builtin_var_count);
     drop(variables);
 
+    default_commands::clear_terminal(&"".to_owned());
+
     splash();
 
     let input = &mut String::new();
