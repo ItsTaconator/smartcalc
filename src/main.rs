@@ -56,8 +56,6 @@ fn main() {
 
     default_commands::clear_terminal(&"".to_owned());
 
-    splash();
-
     let input = &mut String::new();
     loop {
         let history = HISTORY.lock().unwrap();
