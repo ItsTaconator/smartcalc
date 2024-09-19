@@ -316,7 +316,7 @@ impl DefaultCommands {
         let convert = Command {
             name: "convert",
             help_text: Some(
-                "Converts between number bases. Number base can be specified by prefixing number with 0b for binary, 0o for octal, and 0x for hexadecimal. If not specified, SmartCalc will guess"
+                "Converts between number bases.\nNumber base can be specified by prefixing number with 0b for binary, 0o for octal, and 0x for hexadecimal.\nIf not specified, SmartCalc will guess"
             ),
             action: convert,
             aliases: None,
