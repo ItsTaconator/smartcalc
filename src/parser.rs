@@ -1,15 +1,16 @@
 use std::{
     collections::VecDeque,
-    io::{self, stdout, Write},
+    io::{self, Write},
     process::exit,
     time::Instant,
 };
 
 use crossterm::{
-    cursor::{self, MoveUp},
-    terminal::{self, size},
+    cursor::{self},
+    terminal::size,
     ExecutableCommand, QueueableCommand,
 };
+use custom_io::mark_special;
 use evalexpr::eval;
 use inline_colorization::*;
 use regex::Regex;
@@ -336,12 +337,7 @@ fn parse_variable_declaration(expression: Vec<&str>) -> Result<(), InvalidExpres
 
     variables.add(variable);
 
-    _ = stdout()
-        .queue(MoveUp(1))
-        .unwrap()
-        .queue(terminal::Clear(crossterm::terminal::ClearType::CurrentLine));
-
-    println!("{color_blue}[{color_cyan}*{color_blue}]>{color_reset} {name} = {value_str}");
+    mark_special("=", &format!("{name} = {value_str}"));
 
     println!("{color_blue}{name} = {value}{color_reset}");
 
