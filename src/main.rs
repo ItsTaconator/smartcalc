@@ -22,6 +22,7 @@ pub mod parser;
 pub mod variable;
 pub mod variables;
 pub mod custom_io;
+pub mod parameter_documentation;
 
 const ITALIC: &str = "\x1b[3m";
 const RESET: &str = "\x1b[0m";

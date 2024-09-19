@@ -3,6 +3,7 @@ use std::io::stdout;
 
 use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use inline_colorization::*;
+use parameter_documentation::ParameterDocumentation;
 use variable::Variable;
 
 use crate::{command::Command, *};
@@ -129,6 +130,11 @@ impl DefaultCommands {
             help_text: Some("Shows this"),
             action: help,
             aliases: None,
+            parameter_documentation: Some(ParameterDocumentation::new(
+                vec!["command"],
+                vec!["(Optional) Command to get help for, lists all commands if not specified"],
+                vec!["String or Nothing"],
+            )),
         };
 
         let show_variables = Command {
@@ -136,6 +142,7 @@ impl DefaultCommands {
             help_text: Some("Lists all variables"),
             action: show_variables,
             aliases: Some(vec!["listvariables", "vars", "showvars", "showv"]),
+            parameter_documentation: None,
         };
 
         let show_history = Command {
@@ -143,6 +150,7 @@ impl DefaultCommands {
             help_text: Some("Shows expression history"),
             action: show_history,
             aliases: Some(vec!["history", "showh"]),
+            parameter_documentation: None,
         };
 
         let exit = Command {
@@ -150,6 +158,7 @@ impl DefaultCommands {
             help_text: Some("Exits SmartCalc"),
             action: |_| std::process::exit(0),
             aliases: Some(vec!["quit"]),
+            parameter_documentation: None,
         };
 
         let clear = Command {
@@ -157,6 +166,7 @@ impl DefaultCommands {
             help_text: Some("Clears the terminal"),
             action: clear_terminal,
             aliases: None,
+            parameter_documentation: None,
         };
 
         let clearhistory = Command {
@@ -164,6 +174,7 @@ impl DefaultCommands {
             help_text: Some("Clears expression history"),
             action: clear_history,
             aliases: Some(vec!["clearh"]),
+            parameter_documentation: None,
         };
 
         let clearvariables = Command {
@@ -171,6 +182,7 @@ impl DefaultCommands {
             help_text: Some("Clears user-defined variables"),
             action: clear_variables,
             aliases: Some(vec!["clearv", "clearvars"]),
+            parameter_documentation: None,
         };
 
         let clearall = Command {
@@ -187,6 +199,7 @@ impl DefaultCommands {
                 clear_terminal(&params);
             },
             aliases: Some(vec!["cleara"]),
+            parameter_documentation: None,
         };
 
         let features = Command {
@@ -196,6 +209,8 @@ impl DefaultCommands {
             ),
             action: features,
             aliases: None,
+            parameter_documentation: None,
+        };
         };
 
         let mut commands = COMMANDS.lock().unwrap();
