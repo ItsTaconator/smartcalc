@@ -71,6 +71,8 @@ pub fn read_line() -> std::io::Result<String> {
             }
             KeyCode::Char(c) => {
                 if modifiers == KeyModifiers::CONTROL && (c == 'c' || c == 'd') {
+                    _ = disable_raw_mode();
+                    println!("");
                     default_commands::exit(&"".to_owned());
                 }
 
