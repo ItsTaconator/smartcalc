@@ -2,6 +2,7 @@
 use std::io::stdout;
 
 use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
+use custom_io::mark_special;
 use inline_colorization::*;
 use parameter_documentation::ParameterDocumentation;
 use radix_fmt::radix;
@@ -107,6 +108,11 @@ pub fn show_history(_: &String) {
         _ = stdout().queue(cursor::MoveUp(1));
         println!("{ITALIC}Very quiet here{RESET}");
     }
+}
+
+pub fn exit(_: &String) {
+    mark_special("bye", "");
+    std::process::exit(0);
 }
 
 pub fn clear_history(_: &String) {
@@ -257,7 +263,7 @@ impl DefaultCommands {
         let exit = Command {
             name: "exit",
             help_text: Some("Exits SmartCalc"),
-            action: |_| std::process::exit(0),
+            action: exit,
             aliases: Some(vec!["quit"]),
             parameter_documentation: None,
         };
