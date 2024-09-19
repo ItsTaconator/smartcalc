@@ -115,7 +115,10 @@ pub fn clear_history(_: &String) {
 }
 
 pub fn clear_terminal(_: &String) {
-    _ = stdout().execute(terminal::Clear(terminal::ClearType::All));
+    _ = stdout()
+        .queue(terminal::Clear(terminal::ClearType::All))
+        .unwrap()
+        .execute(cursor::MoveTo(0, 0));
     crate::splash();
 }
 
