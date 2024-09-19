@@ -71,9 +71,9 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
         return Ok(());
     }
 
-    _ = parse_line_references(&mut expression);
+    let point_in_history = parse_line_references(&mut expression);
 
-    if !parse_continuations(&mut expression) {
+    if !parse_continuations(&mut expression, point_in_history) {
         return Ok(());
     }
 
@@ -112,14 +112,43 @@ fn calculate_and_show_result(expression: &String) -> bool {
     true
 }
 
-fn parse_line_references(expression: &mut String) -> Result<(), InvalidExpression> {
+fn parse_line_references(expression: &mut String) -> usize {
     let history = HISTORY.lock().unwrap();
+    let operators = OPERATORS.lock().unwrap();
 
-    for i in (0..history.len()).rev() {
-        *expression = expression.replace(&format!("[{}]", i), &history[i]);
+    let mut point_in_history: usize = 0;
+    let mut set = false;
+
+    for i in (1..history.len()).rev() {
+        if !set {
+            if !expression.starts_with("[") {
+                set = true;
+            }
+        }
+
+        let mut history_tmp: Vec<String> = history.clone().into();
+        history_tmp.reverse();
+
+        let re = Regex::new(&format!("\\[{}\\]", i)).unwrap();
+
+        *expression = re.replace_all(&expression, format!("({})", history_tmp[i - 1].trim())).to_string();
+        // *expression = expression.replace(&format!("[{}]", i), &history_tmp[i - 1]);
+        
+        for operator in operators.iter() {
+            if set {
+                break;
+            }
+
+            if expression.starts_with(
+                &format!("({}", operator)
+            ) {
+                point_in_history = i;
+                set = true;
+            }
+        }
     }
 
-    Ok(())
+    point_in_history
 }
 
 fn parse_commands(expression: &String) -> bool {
@@ -147,20 +176,21 @@ fn parse_commands(expression: &String) -> bool {
     false
 }
 
-fn parse_continuations(expression: &mut String) -> bool {
+fn parse_continuations(expression: &mut String, mut point_in_history: usize) -> bool {
     let expression_clone = expression.to_owned();
     let mut expression_trimmed = expression_clone.trim().to_owned();
 
     let operators = OPERATORS.lock().unwrap();
 
-    let mut i = 0usize;
+    let mut opening_parens_to_restore = 0;
 
     loop {
         let mut encountered_operator = false;
-        if i > 0 {
+        if point_in_history > 0 || expression_trimmed.starts_with("(") {
             let mut expr_chars = expression_trimmed.chars();
             expr_chars.next();
             expression_trimmed = expr_chars.as_str().to_owned();
+            opening_parens_to_restore += 1;
         }
 
         for operator in operators.iter() {
@@ -168,8 +198,8 @@ fn parse_continuations(expression: &mut String) -> bool {
                 encountered_operator = true;
 
                 let history = HISTORY.lock().unwrap();
-                let expr = history.get(i);
-                i += 1;
+                let expr = history.get(point_in_history);
+                point_in_history += 1;
 
                 if expr.is_none() {
                     println!(
@@ -191,7 +221,7 @@ fn parse_continuations(expression: &mut String) -> bool {
         }
     }
 
-    *expression = format!("{}{expression_trimmed}", "(".repeat(i));
+    *expression = format!("{}{expression_trimmed}", "(".repeat(opening_parens_to_restore));
 
     true
 }
