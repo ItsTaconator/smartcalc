@@ -165,9 +165,12 @@ pub fn features(_: &String) {
     print!("This adds the last expression to the start of the current expression if you omit the first operand:\n");
     start(3);
     print!(" / 10\n{color_blue}= 10{color_reset}\n\n");
+    println!("You can even do a continuation after a continuation:");
+    start(4);
+    print!(" % 5\n{color_blue}= 0{color_reset}\n\n");
     print!("{color_blue}Line References{color_reset}\n");
     print!("Finally, you can reference previous calculations by number:\n");
-    start(4);
+    start(5);
     print!(" [2] ^ 2\n{color_blue}= 10000{color_reset}\n\n");
 
     stdout().flush().unwrap();
