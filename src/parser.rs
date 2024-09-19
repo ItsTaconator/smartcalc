@@ -134,6 +134,7 @@ fn parse_commands(expression: &String) -> bool {
                 || command.aliases.is_some()
                     && command.aliases.as_ref().unwrap().contains(&split[0])
             {
+                mark_special("/", &expression);
                 _ = split.pop_front();
                 let parameters: Vec<&str> = split.clone().into();
                 let parameters = parameters.join(" ");
