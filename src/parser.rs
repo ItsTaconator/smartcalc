@@ -71,10 +71,17 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
         return Ok(());
     }
 
-    let point_in_history = parse_line_references(&mut expression);
+    loop {
+        let start = expression.clone();
+        let point_in_history = parse_line_references(&mut expression);
 
-    if !parse_continuations(&mut expression, point_in_history) {
-        return Ok(());
+        if !parse_continuations(&mut expression, point_in_history) {
+            return Ok(());
+        }
+
+        if start == expression {
+            break;
+        }
     }
 
     parse_variables(&mut expression)?;
@@ -131,17 +138,17 @@ fn parse_line_references(expression: &mut String) -> usize {
 
         let re = Regex::new(&format!("\\[{}\\]", i)).unwrap();
 
-        *expression = re.replace_all(&expression, format!("({})", history_tmp[i - 1].trim())).to_string();
+        *expression = re
+            .replace_all(&expression, format!("({})", history_tmp[i - 1].trim()))
+            .to_string();
         // *expression = expression.replace(&format!("[{}]", i), &history_tmp[i - 1]);
-        
+
         for operator in operators.iter() {
             if set {
                 break;
             }
 
-            if expression.starts_with(
-                &format!("({}", operator)
-            ) {
+            if expression.starts_with(&format!("({}", operator)) {
                 point_in_history = i;
                 set = true;
             }
@@ -221,7 +228,10 @@ fn parse_continuations(expression: &mut String, mut point_in_history: usize) -> 
         }
     }
 
-    *expression = format!("{}{expression_trimmed}", "(".repeat(opening_parens_to_restore));
+    *expression = format!(
+        "{}{expression_trimmed}",
+        "(".repeat(opening_parens_to_restore)
+    );
 
     true
 }
