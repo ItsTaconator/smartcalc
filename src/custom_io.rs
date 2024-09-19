@@ -7,7 +7,9 @@ use crossterm::{
     ExecutableCommand, QueueableCommand,
 };
 
-use crate::HISTORY;
+use inline_colorization::*;
+
+use crate::*;
 
 pub fn read_line() -> std::io::Result<String> {
     let mut line = String::new();
