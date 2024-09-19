@@ -8,8 +8,51 @@ use variable::Variable;
 
 use crate::{command::Command, *};
 
-pub fn help(_: &String) {
+pub fn help(command_name: &String) {
     let commands = COMMANDS.lock().unwrap();
+    if command_name.len() > 0 {
+        let mut command: Option<&Command> = None;
+        for (name, cmd) in commands.iter() {
+            if command_name == name {
+                command = Some(cmd);
+                break;
+            }
+
+            if let Some(aliases) = &cmd.aliases {
+                if aliases.contains(&command_name.as_str()) {
+                    command = Some(cmd);
+                    break;
+                }
+            }
+        }
+
+        if command.is_none() {
+            println!("{color_red}Command \"{command_name}\" not found{RESET}");
+            return;
+        }
+
+        let command = command.unwrap();
+
+        println!(
+            "{color_yellow}{style_bold}{}{RESET} - {}",
+            command.name,
+            command.help_text.unwrap_or("No help text")
+        );
+
+        if let Some(aliases) = &command.aliases {
+            println!("Aliases: {}", aliases.join(","));
+        }
+
+        if let Some(parameters) = &command.parameter_documentation {
+            println!("\n{color_blue}Parameters{RESET}");
+            for (name, desc, expected_type) in parameters.clone().into_iter() {
+                println!("{color_magenta}{name}{RESET} - {desc} - Should be {color_magenta}{expected_type}{RESET}");
+            }
+        }
+
+        return;
+    }
+
     println!("SmartCalc is an advanced command-line calculator with features such as variables, comments, line references, and continuation.\nFor an example of these features, run the {color_yellow}features{color_reset} command\n\n{color_blue}Commands{color_reset}\nName (Aliases) - Help Text\n");
     for (name, command) in commands.iter() {
         let aliases = &command.aliases;
@@ -127,7 +170,9 @@ impl DefaultCommands {
     pub fn register() {
         let help = Command {
             name: "help",
-            help_text: Some("Shows this"),
+            help_text: Some(
+                "Shows all commands, or info about a specific command if followed by its name",
+            ),
             action: help,
             aliases: None,
             parameter_documentation: Some(ParameterDocumentation::new(
