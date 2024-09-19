@@ -107,7 +107,7 @@ fn splash() {
 
 fn setup_default_operators() {
     let mut lock = OPERATORS.lock().unwrap();
-    *lock = vec!["+", "-", "*", "/", "^", "="]
+    *lock = vec!["+", "-", "*", "/", "^", "=", "%", "^"]
         .into_iter()
         .map(String::from)
         .collect();
