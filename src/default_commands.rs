@@ -4,6 +4,7 @@ use std::io::stdout;
 use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use inline_colorization::*;
 use parameter_documentation::ParameterDocumentation;
+use radix_fmt::radix;
 use variable::Variable;
 
 use crate::{command::Command, *};
@@ -166,6 +167,58 @@ pub fn features(_: &String) {
     stdout().flush().unwrap();
 }
 
+pub fn convert(number: &String) {
+    let number = number.to_lowercase();
+
+    let hex: Vec<char> = vec!['a', 'b', 'c', 'd', 'e', 'f'];
+
+    if number.len() == 0 {
+        println!("{color_red}Number to convert not specified{RESET}");
+        return;
+    }
+
+    let number_base = if number.starts_with("0b") {
+        2
+    } else if number.starts_with("0o") {
+        8
+    } else if number.starts_with("0x") {
+        16
+    } else if number.chars().any(|c| hex.contains(&c)) {
+        println!("Assuming base is 16");
+        16
+    } else {
+        println!("Assuming base is 10");
+        10
+    };
+
+    let result = isize::from_str_radix(&number, number_base);
+
+    if result.is_err() {
+        println!("{color_red}Could not parse number{RESET}");
+        return;
+    }
+
+    let actual_number = result.unwrap();
+
+    if number_base != 2 {
+        println!("{color_blue}Binary:{RESET} {}", radix(actual_number, 2));
+    }
+
+    if number_base != 8 {
+        println!("{color_blue}Octal:{RESET} {}", radix(actual_number, 8));
+    }
+
+    if number_base != 10 {
+        println!("{color_blue}Decimal:{RESET} {}", radix(actual_number, 10));
+    }
+
+    if number_base != 16 {
+        println!("{color_blue}Hexadecimal:{RESET} {}", radix(actual_number, 16));
+    }
+
+    println!();
+}
+
 /// Built-in commands
 pub struct DefaultCommands;
 
@@ -259,6 +312,15 @@ impl DefaultCommands {
             aliases: None,
             parameter_documentation: None,
         };
+
+        let convert = Command {
+            name: "convert",
+            help_text: Some(
+                "Converts between number bases. Number base can be specified by prefixing number with 0b for binary, 0o for octal, and 0x for hexadecimal. If not specified, SmartCalc will guess"
+            ),
+            action: convert,
+            aliases: None,
+            parameter_documentation: Some(ParameterDocumentation::new(vec!["number"], vec!["Number to convert"], vec!["Integer"]))
         };
 
         let mut commands = COMMANDS.lock().unwrap();
@@ -271,5 +333,6 @@ impl DefaultCommands {
         commands.insert(clearvariables.name.to_owned(), clearvariables);
         commands.insert(clearall.name.to_owned(), clearall);
         commands.insert(features.name.to_owned(), features);
+        commands.insert(convert.name.to_owned(), convert);
     }
 }
