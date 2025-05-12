@@ -109,7 +109,9 @@ pub fn read_line() -> io::Result<String> {
 
                     line = entry;
 
-                    _ = stdout().flush().unwrap();
+                    _ = stdout().flush()?;
+                } else {
+                    clear_line(true)?;
                 }
             }
             KeyCode::Backspace | KeyCode::Delete => {
