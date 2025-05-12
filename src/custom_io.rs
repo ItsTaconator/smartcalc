@@ -115,7 +115,7 @@ pub fn read_line() -> io::Result<String> {
                 }
             }
             KeyCode::Backspace | KeyCode::Delete => {
-                if x != position().unwrap().0 {
+                if line.len() != 0 {
                     _ = line.pop();
                     _ = stdout().queue(cursor::MoveLeft(1));
                     print!(" ");
