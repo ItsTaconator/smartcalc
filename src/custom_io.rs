@@ -13,7 +13,7 @@ use crate::*;
 
 pub fn read_line() -> io::Result<String> {
     let mut line = String::new();
-    let (x, _) = cursor::position().unwrap();
+    let (original_x, _) = position()?;
     _ = stdout().execute(cursor::SavePosition);
     _ = enable_raw_mode();
 
