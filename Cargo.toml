@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-compute-pi = "1.0.0"
-crossterm = "0.28.1"
-evalexpr = "11.3.0"
+crossterm = "0.29.0"
+evalexpr = "12.0.2"
 inline_colorization = "0.1.6"
 lazy_static = "1.5.0"
 linked-hash-map = "0.5.6"
