@@ -25,7 +25,7 @@ impl IntoIterator for Variables {
 impl Default for Variables {
     fn default() -> Self {
         let mut variables = LinkedHashMap::<String, Variable>::new();
-        self::Variables::add_basic_constants(&mut variables);
+        Variables::add_basic_constants(&mut variables);
 
         let builtin_variable_count = variables.len();
 
