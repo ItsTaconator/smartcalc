@@ -178,7 +178,7 @@ pub fn features(_: &String) {
 }
 
 pub fn convert(number: &String) {
-    let number = number.to_lowercase();
+    let mut number = number.to_lowercase();
 
     let hex: Vec<char> = vec!['a', 'b', 'c', 'd', 'e', 'f'];
 
@@ -200,6 +200,10 @@ pub fn convert(number: &String) {
         println!("Assuming base is 10");
         10
     };
+
+    if number_base != 10 {
+        number = number.chars().skip(2).collect();
+    }
 
     let result = isize::from_str_radix(&number, number_base);
 
