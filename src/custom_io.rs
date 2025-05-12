@@ -151,7 +151,7 @@ pub fn mark_special(marker: &str, expression: &str) {
     _ = stdout()
         .queue(cursor::MoveUp(1))
         .unwrap()
-        .queue(terminal::Clear(crossterm::terminal::ClearType::CurrentLine));
+        .queue(terminal::Clear(terminal::ClearType::CurrentLine));
 
     println!("{color_blue}[{color_cyan}{marker}{color_blue}]> {RESET}{expression}");
 }
