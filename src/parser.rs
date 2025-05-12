@@ -174,6 +174,11 @@ fn parse_commands(expression: &String) -> bool {
                 _ = split.pop_front();
                 let parameters: Vec<&str> = split.clone().into();
                 let parameters = parameters.join(" ");
+
+                let mut history = HISTORY.lock().unwrap();
+                history.push_back(format!("{} {}", name, parameters));
+                drop(history);
+                
                 (command.action)(&parameters);
                 return true;
             }
