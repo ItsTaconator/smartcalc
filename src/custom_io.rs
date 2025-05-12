@@ -123,15 +123,21 @@ pub fn read_line() -> io::Result<String> {
                 }
             }
             KeyCode::Char(c) => {
-                if modifiers == KeyModifiers::CONTROL && (c == 'c' || c == 'd') {
-                    _ = disable_raw_mode();
-                    println!("");
-                    default_commands::exit(&"".to_owned());
+                // CTRL
+                if modifiers == KeyModifiers::CONTROL {
+                    match c {
+                        'c' | 'd' => {
+                            _ = disable_raw_mode();
+                            println!();
+                            default_commands::exit(&"".to_owned());
+                        }
+                        _ => ()
+                    }
+                } else {
+                    line.push(c);
+                    print!("{c}");
+                    _ = stdout().flush()?;
                 }
-
-                line.push(c);
-                print!("{c}");
-                _ = stdout().flush().unwrap();
             }
             _ => {}
         }
