@@ -23,6 +23,22 @@ pub fn read_line() -> io::Result<String> {
         code, modifiers, ..
     }) = event::read()?
     {
+        let (x, _) = position()?;
+        let mut clear_line = |flush| -> io::Result<()> {
+            if line.len() != 0 {
+                let len = line.len();
+                line.clear();
+                stdout().queue(cursor::MoveLeft(len as u16))?;
+                print!("{}", " ".repeat(len.into()));
+                stdout().queue(cursor::MoveLeft(len as u16))?;
+                if flush {
+                    stdout().flush()?;
+                }
+            }
+
+            Ok(())
+        };
+
         match code {
             KeyCode::Enter => {
                 _ = disable_raw_mode();
