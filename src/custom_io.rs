@@ -11,7 +11,7 @@ use inline_colorization::*;
 
 use crate::*;
 
-pub fn read_line() -> std::io::Result<String> {
+pub fn read_line() -> io::Result<String> {
     let mut line = String::new();
     let (x, _) = cursor::position().unwrap();
     _ = stdout().execute(cursor::SavePosition);
