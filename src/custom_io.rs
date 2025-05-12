@@ -63,7 +63,47 @@ pub fn read_line() -> io::Result<String> {
                         .get(current_history_entry as usize)
                         .unwrap()
                         .to_owned();
-                    entry.pop();
+
+                    entry = entry.trim().to_owned();
+
+                    print!("{}", &entry);
+
+                    line = entry;
+
+                    _ = stdout().flush()?;
+                }
+            }
+            // Move cursor left (within bounds)
+            KeyCode::Left => {
+                if original_x != x {
+                    stdout().execute(cursor::MoveLeft(1))?;
+                }
+            }
+            // Move cursor right (within bounds)
+            KeyCode::Right => {
+                let prompt_length = HISTORY.lock().unwrap().len() + 5;
+                if (x as usize) < (line.len() + prompt_length) {
+                    stdout().execute(cursor::MoveRight(1))?;
+                }
+            }
+            // Go down in history or clear input
+            KeyCode::Down => {
+                let history = HISTORY.lock().unwrap();
+
+                if history.len() > 0 {
+                    current_history_entry -= 1;
+                    if current_history_entry < 0 {
+                        current_history_entry = -1;
+                        clear_line(true)?;
+                        continue;
+                    }
+
+                    clear_line(false)?;
+
+                    let entry = history
+                        .get(current_history_entry as usize)
+                        .unwrap()
+                        .trim().to_owned();
 
                     print!("{}", &entry);
 
