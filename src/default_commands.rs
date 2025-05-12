@@ -126,7 +126,8 @@ pub fn clear_terminal(_: &String) {
         .queue(terminal::Clear(terminal::ClearType::All))
         .unwrap()
         .execute(cursor::MoveTo(0, 0));
-    crate::splash();
+
+    splash();
 }
 
 pub fn clear_variables(_: &String) {
