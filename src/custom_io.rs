@@ -52,18 +52,12 @@ pub fn read_line() -> io::Result<String> {
 
                 if history.len() > 0 {
                     current_history_entry += 1;
-
-                    _ = stdout()
-                        .queue(cursor::RestorePosition)?
-                        .queue(cursor::SavePosition)?
-                        .flush()
-                        .unwrap();
-
-                    let (width, _) = terminal::size().unwrap();
-
-                    print!("{}", "".repeat((width - x).into()));
-
-                    _ = stdout().queue(cursor::RestorePosition)?.flush().unwrap();
+                    if history.len() <= (current_history_entry as usize) {
+                        current_history_entry = history.len() as isize;
+                        continue;
+                    }
+                    
+                    clear_line(false)?;
 
                     let mut entry = history
                         .get(current_history_entry as usize)
