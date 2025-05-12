@@ -229,7 +229,7 @@ pub fn convert(number: &String) {
     if number_base != 16 {
         println!(
             "{color_blue}Hexadecimal:{RESET} {}",
-            radix(actual_number, 16)
+            radix(actual_number, 16).to_string().to_uppercase()
         );
     }
 
