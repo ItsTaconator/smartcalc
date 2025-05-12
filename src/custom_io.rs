@@ -46,6 +46,7 @@ pub fn read_line() -> io::Result<String> {
                 line.push('\n');
                 break;
             }
+            // Grab last expression from history and replace current one with it
             KeyCode::Up => {
                 let history = HISTORY.lock().unwrap();
 
