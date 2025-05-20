@@ -123,24 +123,26 @@ fn parse_line_references(expression: &mut String) -> usize {
     let history = HISTORY.lock().unwrap();
     let operators = OPERATORS.lock().unwrap();
 
+    let mut history_reverse: Vec<String> = history.clone().into();
+    history_reverse.reverse();
+
     let mut point_in_history: usize = 0;
     let mut set = false;
 
-    for i in (1..history.len()).rev() {
+    for i in 0..=history.len() {
         if !set {
             if !expression.starts_with("[") {
                 set = true;
             }
         }
 
-        let mut history_tmp: Vec<String> = history.clone().into();
-        history_tmp.reverse();
-
         let re = Regex::new(&format!("\\[{}\\]", i)).unwrap();
 
-        *expression = re
-            .replace_all(&expression, format!("({})", history_tmp[i - 1].trim()))
-            .to_string();
+        while re.is_match(&expression) {
+            *expression = re
+                .replace_all(&expression, format!("({})", history_reverse[i - 1].trim()))
+                .to_string();
+        }
         // *expression = expression.replace(&format!("[{}]", i), &history_tmp[i - 1]);
 
         for operator in operators.iter() {
