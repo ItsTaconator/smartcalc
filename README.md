@@ -5,10 +5,8 @@ A somewhat advanced cross-platform command-line calculator written in Rust. It h
 - continuations (using the last result as the first operand in an expression)
 - line references (using the result from a specific expression in a different one)
 
+![smartcalc screenshot](https://taconator.com/static/img/projects/smartcalc.avif)
 ## Usage
 Download binary for your respective architecture and operating system then run it, or clone the repo and build it with `cargo`
 
 Type `help` to get help, or `features` to view features
-
-## Example of Features
-![Smartcalc Features List Demonstrated](https://taconator.com/static/img/projects/smartcalc.avif)
