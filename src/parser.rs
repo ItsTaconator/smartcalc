@@ -51,7 +51,7 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
     }
 
     if expression.starts_with("//") || expression.starts_with('#') {
-        return parse_comment(expression);
+        return parse_comments(expression);
     }
 
     if expression.contains('=') {
@@ -62,7 +62,7 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
             });
         }
 
-        let result = parse_variable_declaration(split);
+        let result = parse_variable_declarations(split);
         match result {
             Ok(_) => (),
             Err(err) => println!("{color_red}{err}{color_reset}"),
@@ -241,7 +241,8 @@ fn parse_continuations(expression: &mut String, mut point_in_history: usize) -> 
     true
 }
 
-fn parse_comment(expression: String) -> Result<(), InvalidExpression> {
+/// Parses comments, starting with both `//` and `#`
+fn parse_comments(expression: String) -> Result<(), InvalidExpression> {
     let comment_prefix = if expression.starts_with('/') {
         "//"
     } else {
@@ -364,7 +365,7 @@ fn parse_variables(expression: &mut String) -> Result<(), InvalidExpression> {
     Ok(())
 }
 
-fn parse_variable_declaration(expression: Vec<&str>) -> Result<(), InvalidExpression> {
+fn parse_variable_declarations(expression: Vec<&str>) -> Result<(), InvalidExpression> {
     let name = expression[0].trim();
     let value_str = expression[1].trim();
     let value = value_str.parse::<f64>();
