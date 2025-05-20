@@ -10,6 +10,7 @@ use variable::Variable;
 
 use crate::{command::Command, *};
 
+/// Prints a general help message, or help for a specific command
 pub fn help(command_name: &String) {
     let commands = COMMANDS.lock().unwrap();
     if command_name.len() > 0 {
@@ -74,6 +75,7 @@ pub fn help(command_name: &String) {
     }
 }
 
+/// Shows user all built-in and user-defined variables and their values
 pub fn show_variables(_: &String) {
     let variables = VARIABLES.lock().unwrap();
     let builtin_var_count = BUILTIN_VARIABLE_COUNT.lock().unwrap();
@@ -100,6 +102,7 @@ pub fn show_variables(_: &String) {
     }
 }
 
+/// Shows the user the expression history
 pub fn show_history(_: &String) {
     let history = HISTORY.lock().unwrap();
     let fixed: Vec<String> = history.iter().map(|elem| elem.replace("\n", "")).collect();
@@ -110,17 +113,20 @@ pub fn show_history(_: &String) {
     }
 }
 
+/// Exits cleanly
 pub fn exit(_: &String) {
     mark_special("bye", "");
     std::process::exit(0);
 }
 
+/// Clears expression history
 pub fn clear_history(_: &String) {
     let mut history = HISTORY.lock().unwrap();
     history.clear();
     println!("{color_green}Cleared expression history{color_reset}");
 }
 
+/// Clears terminal and displays splash again
 pub fn clear_terminal(_: &String) {
     _ = stdout()
         .queue(terminal::Clear(terminal::ClearType::All))
@@ -130,6 +136,7 @@ pub fn clear_terminal(_: &String) {
     splash();
 }
 
+/// Clears all user-defined variables
 pub fn clear_variables(_: &String) {
     let mut variables = VARIABLES.lock().unwrap();
     let builtin_var_count = BUILTIN_VARIABLE_COUNT.lock().unwrap();
@@ -148,6 +155,7 @@ pub fn clear_variables(_: &String) {
     println!("{color_cyan}Cleared user-defined variables{color_reset}");
 }
 
+/// Shows off Smartcalc's features
 pub fn features(_: &String) {
     fn start(i: i32) {
         print!("{color_blue}[{color_cyan}{i}{color_blue}]>{color_reset}");
@@ -177,6 +185,7 @@ pub fn features(_: &String) {
     stdout().flush().unwrap();
 }
 
+/// Number converter for binary, octal, decimal, and hexadecimal numbers
 pub fn convert(number: &String) {
     let mut number = number.to_lowercase();
 
@@ -240,6 +249,7 @@ pub fn convert(number: &String) {
 pub struct DefaultCommands;
 
 impl DefaultCommands {
+    /// Registers all built-in commands
     pub fn register() {
         let help = Command {
             name: "help",
