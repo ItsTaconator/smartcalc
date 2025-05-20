@@ -50,8 +50,6 @@ impl Variables {
             Variable::new_f64("γ", f64::exp(1.0), Some(vec!["ℇ".to_string()])),
         );
 
-        println!("Computing Pi, please wait...");
-
         // Pi
         variables.insert(
             "pi".to_owned(),
