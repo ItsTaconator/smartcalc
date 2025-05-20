@@ -16,13 +16,13 @@ use variables::Variables;
 
 pub mod command;
 pub mod config;
+pub mod custom_io;
 pub mod default_commands;
 pub mod invalid_expression;
+pub mod parameter_documentation;
 pub mod parser;
 pub mod variable;
 pub mod variables;
-pub mod custom_io;
-pub mod parameter_documentation;
 #[cfg(windows)]
 mod windows;
 

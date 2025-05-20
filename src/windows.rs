@@ -1,7 +1,10 @@
 use std::sync::Mutex;
 
 use lazy_static::lazy_static;
-use windows::Win32::System::Console::{GetConsoleMode, GetStdHandle, SetConsoleMode, CONSOLE_MODE, ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_OUTPUT_HANDLE};
+use windows::Win32::System::Console::{
+    GetConsoleMode, GetStdHandle, SetConsoleMode, CONSOLE_MODE, ENABLE_VIRTUAL_TERMINAL_PROCESSING,
+    STD_OUTPUT_HANDLE,
+};
 
 lazy_static! {
     static ref previous_mode: Mutex<Option<CONSOLE_MODE>> = Mutex::new(None);

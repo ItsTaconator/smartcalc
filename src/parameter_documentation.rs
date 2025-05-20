@@ -25,8 +25,8 @@ impl IntoIterator for ParameterDocumentation {
 
         for i in 0..names.len() {
             out.push((names[i], descs[i], types[i]));
-        }        
-        
+        }
+
         out.into_iter()
     }
 }

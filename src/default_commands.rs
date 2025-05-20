@@ -95,10 +95,7 @@ pub fn show_variables(_: Option<&str>) {
     }
 
     for variable in actual_variables.iter().skip(*builtin_var_count) {
-        println!(
-            "{} - {:.25}...",
-            variable.key, variable.value
-        );
+        println!("{} - {:.25}...", variable.key, variable.value);
     }
 }
 

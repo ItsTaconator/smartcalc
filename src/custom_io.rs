@@ -19,7 +19,10 @@ pub fn read_line() -> io::Result<String> {
     let mut current_history_entry = -1;
 
     while let Event::Key(KeyEvent {
-        code, modifiers, kind, ..
+        code,
+        modifiers,
+        kind,
+        ..
     }) = event::read()?
     {
         // Prevents key presses from being registered twice on Windows
@@ -60,7 +63,7 @@ pub fn read_line() -> io::Result<String> {
                         current_history_entry = history.len() as isize;
                         continue;
                     }
-                    
+
                     clear_line(false)?;
 
                     let mut entry = history
@@ -107,7 +110,8 @@ pub fn read_line() -> io::Result<String> {
                     let entry = history
                         .get(current_history_entry as usize)
                         .unwrap()
-                        .trim().to_owned();
+                        .trim()
+                        .to_owned();
 
                     print!("{}", &entry);
 
@@ -135,7 +139,7 @@ pub fn read_line() -> io::Result<String> {
                             println!();
                             default_commands::exit(None);
                         }
-                        _ => ()
+                        _ => (),
                     }
                 } else {
                     line.push(c);
