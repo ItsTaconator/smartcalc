@@ -62,7 +62,7 @@ fn main() {
     drop(builtin_var_count);
     drop(variables);
 
-    default_commands::clear_terminal(&"".to_owned());
+    default_commands::clear_terminal(None);
 
     let input = &mut String::new();
     loop {

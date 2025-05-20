@@ -25,11 +25,11 @@ pub fn read_line() -> io::Result<String> {
     {
         let (x, _) = position()?;
         let mut clear_line = |flush| -> io::Result<()> {
-            if line.len() != 0 {
+            if !line.is_empty() {
                 let len = line.len();
                 line.clear();
                 stdout().queue(cursor::MoveLeft(len as u16))?;
-                print!("{}", " ".repeat(len.into()));
+                print!("{}", " ".repeat(len));
                 stdout().queue(cursor::MoveLeft(len as u16))?;
                 if flush {
                     stdout().flush()?;
@@ -50,7 +50,7 @@ pub fn read_line() -> io::Result<String> {
             KeyCode::Up => {
                 let history = HISTORY.lock().unwrap();
 
-                if history.len() > 0 {
+                if !history.is_empty() {
                     current_history_entry += 1;
                     if history.len() <= (current_history_entry as usize) {
                         current_history_entry = history.len() as isize;
@@ -70,7 +70,7 @@ pub fn read_line() -> io::Result<String> {
 
                     line = entry;
 
-                    _ = stdout().flush()?;
+                    stdout().flush()?;
                 }
             }
             // Move cursor left (within bounds)
@@ -90,7 +90,7 @@ pub fn read_line() -> io::Result<String> {
             KeyCode::Down => {
                 let history = HISTORY.lock().unwrap();
 
-                if history.len() > 0 {
+                if !history.is_empty() {
                     current_history_entry -= 1;
                     if current_history_entry < 0 {
                         current_history_entry = -1;
@@ -109,13 +109,13 @@ pub fn read_line() -> io::Result<String> {
 
                     line = entry;
 
-                    _ = stdout().flush()?;
+                    stdout().flush()?;
                 } else {
                     clear_line(true)?;
                 }
             }
             KeyCode::Backspace | KeyCode::Delete => {
-                if line.len() != 0 {
+                if !line.is_empty() {
                     _ = line.pop();
                     _ = stdout().queue(cursor::MoveLeft(1));
                     print!(" ");
@@ -129,14 +129,14 @@ pub fn read_line() -> io::Result<String> {
                         'c' | 'd' => {
                             _ = disable_raw_mode();
                             println!();
-                            default_commands::exit(&"".to_owned());
+                            default_commands::exit(None);
                         }
                         _ => ()
                     }
                 } else {
                     line.push(c);
                     print!("{c}");
-                    _ = stdout().flush()?;
+                    stdout().flush()?;
                 }
             }
             _ => {}

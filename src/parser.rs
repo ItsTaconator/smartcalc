@@ -113,8 +113,8 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
 /// Calculates an expression and displays the results
 ///
 /// Only ran after all the parsing functions are ran first
-fn calculate_and_show_result(expression: &String) -> bool {
-    let result = eval(&expression);
+fn calculate_and_show_result(expression: &str) -> bool {
+    let result = eval(expression);
     match result {
         Ok(result) => {
             println!("= {color_blue}{}{color_reset}", &result)
@@ -142,17 +142,15 @@ fn parse_line_references(expression: &mut String) -> usize {
     let mut set = false;
 
     for i in 0..=history.len() {
-        if !set {
-            if !expression.starts_with("[") {
-                set = true;
-            }
+        if !set && !expression.starts_with("[") {
+            set = true;
         }
 
         let re = Regex::new(&format!("\\[{}\\]", i)).unwrap();
 
-        while re.is_match(&expression) {
+        while re.is_match(expression) {
             *expression = re
-                .replace_all(&expression, format!("({})", history_reverse[i - 1].trim()))
+                .replace_all(expression, format!("({})", history_reverse[i - 1].trim()))
                 .to_string();
         }
         // *expression = expression.replace(&format!("[{}]", i), &history_tmp[i - 1]);
@@ -175,28 +173,34 @@ fn parse_line_references(expression: &mut String) -> usize {
 /// Parses commands
 ///
 /// Built-in commands can be found in [default_commands]
-fn parse_commands(expression: &String) -> bool {
+fn parse_commands(expression: &str) -> bool {
     let commands_lock = COMMANDS.lock().unwrap();
     let commands = commands_lock.clone();
     drop(commands_lock);
 
     let mut split: VecDeque<&str> = expression.split(" ").collect();
-    if split.len() > 0 {
+    if !split.is_empty() {
         for (name, command) in commands.iter() {
             if split[0] == name
                 || command.aliases.is_some()
                     && command.aliases.as_ref().unwrap().contains(&split[0])
             {
-                mark_special("/", &expression);
+                mark_special("/", expression);
                 _ = split.pop_front();
-                let parameters: Vec<&str> = split.clone().into();
-                let parameters = parameters.join(" ");
+
+                let parameters = split.clone().into_iter().collect::<Vec<&str>>().join(" ");
 
                 let mut history = HISTORY.lock().unwrap();
-                history.push_back(format!("{} {}", name, parameters));
+                history.push_back(format!("{} {}", name, &parameters));
                 drop(history);
-                
-                (command.action)(&parameters);
+
+                let parameters = if parameters.is_empty() {
+                    None
+                } else {
+                    Some(parameters.as_str())
+                };
+
+                (command.action)(parameters);
                 return true;
             }
         }
@@ -303,17 +307,15 @@ fn parse_variables(expression: &mut String) -> Result<(), InvalidExpression> {
 
     let mut variables_in_expression = false;
 
-    for (name, variable) in variables.to_owned().into_iter() {
+    for (name, variable) in variables.clone() {
         if expression.contains(&name) {
             variables_in_expression = true;
             break;
-        } else {
-            if let Some(aliases) = variable.aliases {
-                for alias in aliases.iter() {
-                    if expression.contains(alias) {
-                        variables_in_expression = true;
-                        break;
-                    }
+        } else if let Some(aliases) = variable.aliases {
+            for alias in aliases.iter() {
+                if expression.contains(alias) {
+                    variables_in_expression = true;
+                    break;
                 }
             }
         }
@@ -333,7 +335,7 @@ fn parse_variables(expression: &mut String) -> Result<(), InvalidExpression> {
     regex_str.pop();
 
     let re = Regex::new(&regex_str).unwrap();
-    let result: Vec<&str> = re.split_inclusive(&expression).collect();
+    let result: Vec<&str> = re.split_inclusive(expression).collect();
     let mut result2: Vec<String> = result
         .clone()
         .into_iter()

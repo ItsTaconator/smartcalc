@@ -11,9 +11,9 @@ use variable::Variable;
 use crate::{command::Command, *};
 
 /// Prints a general help message, or help for a specific command
-pub fn help(command_name: &String) {
+pub fn help(command_name: Option<&str>) {
     let commands = COMMANDS.lock().unwrap();
-    if command_name.len() > 0 {
+    if let Some(command_name) = command_name {
         let mut command: Option<&Command> = None;
         for (name, cmd) in commands.iter() {
             if command_name == name {
@@ -22,7 +22,7 @@ pub fn help(command_name: &String) {
             }
 
             if let Some(aliases) = &cmd.aliases {
-                if aliases.contains(&command_name.as_str()) {
+                if aliases.contains(&command_name) {
                     command = Some(cmd);
                     break;
                 }
@@ -70,23 +70,23 @@ pub fn help(command_name: &String) {
             "{color_yellow}{}{color_reset} ({}) - {}",
             name,
             aliases,
-            command.help_text.clone().unwrap_or("No help text"),
+            command.help_text.unwrap_or("No help text"),
         );
     }
 }
 
 /// Shows user all built-in and user-defined variables and their values
-pub fn show_variables(_: &String) {
+pub fn show_variables(_: Option<&str>) {
     let variables = VARIABLES.lock().unwrap();
     let builtin_var_count = BUILTIN_VARIABLE_COUNT.lock().unwrap();
     println!("{color_cyan}{ITALIC}Built-in:{RESET}");
 
     let actual_variables: Vec<&Variable> = variables.variables.values().collect();
 
-    for i in 0..*builtin_var_count {
+    for variable in actual_variables.iter().take(*builtin_var_count) {
         println!(
             "{color_yellow}{}{color_reset} - {}",
-            actual_variables[i].key, actual_variables[i].value
+            variable.key, variable.value
         );
     }
 
@@ -94,27 +94,27 @@ pub fn show_variables(_: &String) {
         println!("\n{color_cyan}{ITALIC}User-defined:{RESET}");
     }
 
-    for i in *builtin_var_count..actual_variables.len() {
+    for variable in actual_variables.iter().skip(*builtin_var_count) {
         println!(
             "{} - {:.25}...",
-            actual_variables[i].key, actual_variables[i].value
+            variable.key, variable.value
         );
     }
 }
 
 /// Shows the user the expression history
-pub fn show_history(_: &String) {
+pub fn show_history(_: Option<&str>) {
     let history = HISTORY.lock().unwrap();
     let fixed: Vec<String> = history.iter().map(|elem| elem.replace("\n", "")).collect();
     println!("{color_blue}History{RESET}\n{}", fixed.join("\n"));
-    if fixed.len() == 0 {
+    if !fixed.is_empty() {
         _ = stdout().queue(cursor::MoveUp(1));
         println!("{ITALIC}Very quiet here{RESET}");
     }
 }
 
 /// Exits cleanly
-pub fn exit(_: &String) {
+pub fn exit(_: Option<&str>) {
     mark_special("bye", "");
 
     // Restore previous console mode on Windows
@@ -125,14 +125,14 @@ pub fn exit(_: &String) {
 }
 
 /// Clears expression history
-pub fn clear_history(_: &String) {
+pub fn clear_history(_: Option<&str>) {
     let mut history = HISTORY.lock().unwrap();
     history.clear();
     println!("{color_green}Cleared expression history{color_reset}");
 }
 
 /// Clears terminal and displays splash again
-pub fn clear_terminal(_: &String) {
+pub fn clear_terminal(_: Option<&str>) {
     _ = stdout()
         .queue(terminal::Clear(terminal::ClearType::All))
         .unwrap()
@@ -142,26 +142,25 @@ pub fn clear_terminal(_: &String) {
 }
 
 /// Clears all user-defined variables
-pub fn clear_variables(_: &String) {
+pub fn clear_variables(_: Option<&str>) {
     let mut variables = VARIABLES.lock().unwrap();
     let builtin_var_count = BUILTIN_VARIABLE_COUNT.lock().unwrap();
     let drain: Vec<(String, Variable)> = variables.variables.drain().collect();
 
-    let mut i = 0usize;
-    for (k, v) in drain {
+    for (i, (k, v)) in drain.into_iter().enumerate() {
         if i == *builtin_var_count {
             break;
         }
 
-        i += 1;
         variables.variables.insert(k, v);
     }
 
     println!("{color_cyan}Cleared user-defined variables{color_reset}");
 }
 
+#[allow(clippy::print_with_newline)]
 /// Shows off Smartcalc's features
-pub fn features(_: &String) {
+pub fn features(_: Option<&str>) {
     fn start(i: i32) {
         print!("{color_blue}[{color_cyan}{i}{color_blue}]>{color_reset}");
     }
@@ -191,15 +190,15 @@ pub fn features(_: &String) {
 }
 
 /// Number converter for binary, octal, decimal, and hexadecimal numbers
-pub fn convert(number: &String) {
+pub fn convert(number: Option<&str>) {
+    let Some(number) = number else {
+        println!("{color_red}Number to convert not specified{RESET}");
+        return;
+    };
+
     let mut number = number.to_lowercase();
 
     let hex: Vec<char> = vec!['a', 'b', 'c', 'd', 'e', 'f'];
-
-    if number.len() == 0 {
-        println!("{color_red}Number to convert not specified{RESET}");
-        return;
-    }
 
     let number_base = if number.starts_with("0b") {
         2
@@ -324,12 +323,9 @@ impl DefaultCommands {
                 "Clears everything (terminal, expression history, and user-defined variables)",
             ),
             action: |_| {
-                // We don't actually care about the params so just make it an empty string
-                let params = "".to_owned();
-
-                clear_variables(&params);
-                clear_history(&params);
-                clear_terminal(&params);
+                clear_variables(None);
+                clear_history(None);
+                clear_terminal(None);
             },
             aliases: Some(vec!["cleara"]),
             parameter_documentation: None,

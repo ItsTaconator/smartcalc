@@ -33,11 +33,9 @@ impl Variable {
         let key = key.to_string();
         if *self.key == key {
             return true;
-        } else {
-            if let Some(aliases) = self.aliases {
-                if aliases.contains(&key) {
-                    return true;
-                }
+        } else if let Some(aliases) = self.aliases {
+            if aliases.contains(&key) {
+                return true;
             }
         }
 
