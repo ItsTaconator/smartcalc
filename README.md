@@ -6,7 +6,7 @@ A somewhat advanced cross-platform command-line calculator written in Rust. It h
 - line references (using the result from a specific expression in a different one)
 
 ## Usage
-Download binary and run it, or clone the repo and build it with cargo
+Download binary for your respective architecture and operating system then run it, or clone the repo and build it with `cargo`
 
 Type `help` to get help, or `features` to view features
 
