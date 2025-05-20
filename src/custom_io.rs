@@ -2,7 +2,7 @@ use std::io::{stdout, Write};
 
 use crossterm::{
     cursor::{self, position},
-    event::{self, Event, KeyCode, KeyEvent, KeyModifiers},
+    event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     terminal::{self, disable_raw_mode, enable_raw_mode},
     ExecutableCommand, QueueableCommand,
 };
@@ -19,9 +19,14 @@ pub fn read_line() -> io::Result<String> {
     let mut current_history_entry = -1;
 
     while let Event::Key(KeyEvent {
-        code, modifiers, ..
+        code, modifiers, kind, ..
     }) = event::read()?
     {
+        // Prevents key presses from being registered twice on Windows
+        if kind == KeyEventKind::Release {
+            continue;
+        }
+
         let (x, _) = position()?;
         let mut clear_line = |flush| -> io::Result<()> {
             if !line.is_empty() {
