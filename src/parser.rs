@@ -13,6 +13,7 @@ use crossterm::{
 use custom_io::mark_special;
 use evalexpr::eval;
 use inline_colorization::*;
+use itertools::Itertools;
 use regex::Regex;
 use regex_split::RegexSplit;
 
@@ -64,7 +65,7 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
         let split: Vec<&str> = expression.split("=").collect();
         if split.len() > 2 {
             return Err(InvalidExpression {
-                message: "Too many equals signs".to_owned(),
+                message: format!("{color_red}Too many equals signs{color_reset}").to_owned(),
             });
         }
 
@@ -307,11 +308,11 @@ fn parse_variables(expression: &mut String) -> Result<(), InvalidExpression> {
 
     let mut variables_in_expression = false;
 
-    for (name, variable) in variables.clone() {
-        if expression.contains(&name) {
+    for key in variables.variables.clone().keys().sorted().rev() {
+        if expression.contains(key) {
             variables_in_expression = true;
             break;
-        } else if let Some(aliases) = variable.aliases {
+        } else if let Some(aliases) = &variables.variables[key].aliases {
             for alias in aliases.iter() {
                 if expression.contains(alias) {
                     variables_in_expression = true;
@@ -367,9 +368,9 @@ fn parse_variables(expression: &mut String) -> Result<(), InvalidExpression> {
             continue;
         }
 
-        let mut str_copy = str.to_owned();
-        str_copy = str_copy.replace("(", "");
-        str_copy = str_copy.replace(")", "");
+        let str_copy = str.to_owned();
+        // str_copy = str_copy.replace("(", "");
+        // str_copy = str_copy.replace(")", "");
 
         let variable = variables.get(str_copy);
         if let Some(variable) = variable {

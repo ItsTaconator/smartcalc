@@ -78,7 +78,10 @@ fn main() {
         io::stdout().flush().unwrap();
 
         *input = custom_io::read_line().unwrap();
-        _ = parse(input.clone());
+        let result = parse(input.clone());
+        if let Err(err) = result {
+            println!("{}", err);
+        }
     }
 }
 
