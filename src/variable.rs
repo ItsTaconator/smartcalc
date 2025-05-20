@@ -1,14 +1,12 @@
-use rug::Float;
-
 #[derive(Clone, Debug)]
 pub struct Variable {
     pub key: Box<str>,
-    pub value: Float,
+    pub value: f64,
     pub aliases: Option<Vec<String>>,
 }
 
 impl Variable {
-    pub fn new<S: ToString>(key: S, value: Float, aliases: Option<Vec<String>>) -> Self {
+    pub fn new<S: ToString>(key: S, value: f64, aliases: Option<Vec<String>>) -> Self {
         Self {
             key: key.to_string().into_boxed_str(),
             value,
@@ -24,7 +22,7 @@ impl Variable {
         let fl: f64 = value.into();
         Self {
             key: key.to_string().into_boxed_str(),
-            value: Float::with_val_64(53, fl),
+            value: fl,
             aliases,
         }
     }
