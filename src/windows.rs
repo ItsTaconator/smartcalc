@@ -15,7 +15,6 @@ pub unsafe fn enable_vt_processing() {
         return;
     };
 
-
     let mut mode: CONSOLE_MODE = CONSOLE_MODE::default();
 
     if GetConsoleMode(handle, &mut mode).is_err() {

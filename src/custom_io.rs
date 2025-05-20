@@ -6,7 +6,6 @@ use crossterm::{
     terminal::{self, disable_raw_mode, enable_raw_mode},
     ExecutableCommand, QueueableCommand,
 };
-
 use inline_colorization::*;
 
 use crate::*;
