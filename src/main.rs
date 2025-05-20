@@ -23,6 +23,8 @@ pub mod variable;
 pub mod variables;
 pub mod custom_io;
 pub mod parameter_documentation;
+#[cfg(windows)]
+mod windows;
 
 const ITALIC: &str = "\x1b[3m";
 const RESET: &str = "\x1b[0m";
@@ -37,6 +39,12 @@ lazy_static! {
 }
 
 fn main() {
+    // Enable virtual terminal processing to make colors work on Windows
+    #[cfg(windows)]
+    unsafe {
+        windows::enable_vt_processing();
+    }
+
     setup_default_operators();
     default_commands::DefaultCommands::register();
 

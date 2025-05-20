@@ -116,6 +116,11 @@ pub fn show_history(_: &String) {
 /// Exits cleanly
 pub fn exit(_: &String) {
     mark_special("bye", "");
+
+    // Restore previous console mode on Windows
+    #[cfg(windows)]
+    crate::windows::restore_console_mode();
+
     std::process::exit(0);
 }
 
