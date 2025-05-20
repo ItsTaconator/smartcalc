@@ -119,7 +119,9 @@ pub fn exit(_: Option<&str>) {
 
     // Restore previous console mode on Windows
     #[cfg(windows)]
-    crate::windows::restore_console_mode();
+    unsafe {
+        crate::windows::restore_console_mode();
+    }
 
     std::process::exit(0);
 }
