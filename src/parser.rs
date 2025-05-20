@@ -18,6 +18,12 @@ use regex_split::RegexSplit;
 
 use crate::{invalid_expression::InvalidExpression, variable::Variable, *};
 
+/// Parses an expression and conditionally calculates the result of it after:
+///
+/// - Determining if it's a [command](parse_commands), performing that command's action instead
+/// - Determining if it's a [comment](parse_comments), and marking it as such
+/// - Handling [continuations](parse_continuations)
+/// - Handling [variable declarations](parse_variable_declarations)
 pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
     let mut expression = expression.to_string();
     let expression_raw = expression.to_owned();
@@ -104,6 +110,9 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
     Ok(())
 }
 
+/// Calculates an expression and displays the results
+///
+/// Only ran after all the parsing functions are ran first
 fn calculate_and_show_result(expression: &String) -> bool {
     let result = eval(&expression);
     match result {
@@ -119,6 +128,9 @@ fn calculate_and_show_result(expression: &String) -> bool {
     true
 }
 
+/// Parses line references and replaces them with that line
+///
+/// Line references are when the user types, for example: `[2]` and refers to line 2 (index 1 in the expression history)
 fn parse_line_references(expression: &mut String) -> usize {
     let history = HISTORY.lock().unwrap();
     let operators = OPERATORS.lock().unwrap();
@@ -160,6 +172,9 @@ fn parse_line_references(expression: &mut String) -> usize {
     point_in_history
 }
 
+/// Parses commands
+///
+/// Built-in commands can be found in [default_commands]
 fn parse_commands(expression: &String) -> bool {
     let commands_lock = COMMANDS.lock().unwrap();
     let commands = commands_lock.clone();
@@ -190,6 +205,9 @@ fn parse_commands(expression: &String) -> bool {
     false
 }
 
+/// Parses continuations
+///
+/// Continuations are expressions that rely on the result of the previous calculation, and use it as the first operand
 fn parse_continuations(expression: &mut String, mut point_in_history: usize) -> bool {
     let expression_clone = expression.to_owned();
     let mut expression_trimmed = expression_clone.trim().to_owned();
