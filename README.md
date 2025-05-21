@@ -6,6 +6,8 @@ A somewhat advanced cross-platform command-line calculator written in Rust. It h
 - line references (using the result from a specific expression in a different one)
 
 ![smartcalc screenshot](https://taconator.com/static/img/projects/smartcalc.avif)
+*<p align="center">Screenshot generated with <a href="https://github.com/homeport/termshot">termshot</a></p>*
+
 ## Usage
 Download binary for your respective architecture and operating system then run it, or clone the repo and build it with `cargo`
 
