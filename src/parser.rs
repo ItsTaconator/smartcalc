@@ -142,7 +142,7 @@ fn parse_line_references(expression: &mut String) -> usize {
     let mut point_in_history: usize = 0;
     let mut set = false;
 
-    for i in 0..=history.len() {
+    for i in 1..=history.len() {
         if !set && !expression.starts_with("[") {
             set = true;
         }
@@ -151,7 +151,7 @@ fn parse_line_references(expression: &mut String) -> usize {
 
         while re.is_match(expression) {
             *expression = re
-                .replace_all(expression, format!("({})", history_reverse[i - 1].trim()))
+                .replace_all(expression, format!("({})", if i.checked_sub(1).is_none() {history_reverse[i].trim()}else{history_reverse[i-1].trim()}))
                 .to_string();
         }
         // *expression = expression.replace(&format!("[{}]", i), &history_tmp[i - 1]);
