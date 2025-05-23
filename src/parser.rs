@@ -1,10 +1,3 @@
-use std::{
-    collections::VecDeque,
-    io::{self, Write},
-    process::exit,
-    time::Instant,
-};
-
 use crossterm::{
     cursor::{self},
     terminal::size,
@@ -16,8 +9,16 @@ use inline_colorization::*;
 use itertools::Itertools;
 use regex::Regex;
 use regex_split::RegexSplit;
+use std::{
+    collections::VecDeque,
+    io::{self, Write},
+    process::exit,
+    time::Instant,
+};
 
-use crate::{invalid_expression::InvalidExpression, variable::Variable, *};
+use crate::{
+    invalid_expression::InvalidExpression, parse_error::ParseError, variable::Variable, *,
+};
 
 /// Parses an expression and conditionally calculates the result of it after:
 ///
@@ -80,7 +81,12 @@ pub fn parse<S: ToString>(expression: S) -> Result<(), InvalidExpression> {
 
     loop {
         let start = expression.clone();
-        let point_in_history = parse_line_references(&mut expression);
+        let line_reference_result = parse_line_references(&mut expression);
+        let Ok(point_in_history) = line_reference_result else {
+            return Err(InvalidExpression::new(
+                line_reference_result.unwrap_err().message,
+            ));
+        };
 
         if !parse_continuations(&mut expression, point_in_history) {
             return Ok(());
@@ -132,7 +138,7 @@ fn calculate_and_show_result(expression: &str) -> bool {
 /// Parses line references and replaces them with that line
 ///
 /// Line references are when the user types, for example: `[2]` and refers to line 2 (index 1 in the expression history)
-fn parse_line_references(expression: &mut String) -> usize {
+fn parse_line_references(expression: &mut String) -> Result<usize, ParseError> {
     let history = HISTORY.lock().unwrap();
     let operators = OPERATORS.lock().unwrap();
 
@@ -149,11 +155,16 @@ fn parse_line_references(expression: &mut String) -> usize {
 
         let re = Regex::new(&format!("\\[{}\\]", i)).unwrap();
 
-        while re.is_match(expression) {
+        if re.is_match(expression) {
+            if i == 0 {
+                return Err(ParseError::new("0 is an invalid line index"));
+            }
+
             *expression = re
                 .replace_all(expression, format!("({})", history_reverse[i - 1].trim()))
                 .to_string();
         }
+
         // *expression = expression.replace(&format!("[{}]", i), &history_tmp[i - 1]);
 
         for operator in operators.iter() {
@@ -168,7 +179,36 @@ fn parse_line_references(expression: &mut String) -> usize {
         }
     }
 
-    point_in_history
+    let re_over_history_len = Regex::new(r"\[(?<num>.*)]").unwrap();
+
+    if let Some(captures) = re_over_history_len.captures(expression) {
+        let index = captures.name("num").unwrap().as_str();
+
+        // Index NaN
+        let Ok(index_num) = index.parse::<isize>() else {
+            return Err(ParseError::new("Index given for line reference is invalid"));
+        };
+
+        // Index negative
+        if index_num < 0 {
+            return Err(ParseError::new(
+                "Negative numbers are not valid indices for line references",
+            ));
+        }
+
+        if index_num as usize >= history.len() {
+            return Err(ParseError::new(
+                "Index given is outside of history's bounds",
+            ));
+        }
+
+        // Valid line reference still exists so drop mutexes and recurse
+        drop(history);
+        drop(operators);
+        return parse_line_references(expression);
+    }
+
+    Ok(point_in_history)
 }
 
 /// Parses commands
