@@ -81,7 +81,7 @@ fn main() {
         *input = custom_io::read_line().unwrap();
         let result = parse(input.clone());
         if let Err(err) = result {
-            println!("{}", err);
+            println!("{color_red}{err}{color_reset}");
         }
     }
 }
