@@ -195,29 +195,35 @@ pub fn convert(number: Option<&str>) {
         return;
     };
 
-    let mut number = number.to_lowercase();
+    let mut skip_prefix = true;
+
+    let mut num = number.to_lowercase();
 
     let hex: Vec<char> = vec!['a', 'b', 'c', 'd', 'e', 'f'];
 
-    let number_base = if number.starts_with("0b") {
+    let number_base = if num.starts_with("0b") {
         2
-    } else if number.starts_with("0o") {
+    } else if num.starts_with("0o") {
         8
-    } else if number.starts_with("0x") {
+    } else if num.starts_with("0x") {
         16
-    } else if number.chars().any(|c| hex.contains(&c)) {
+    } else if num.starts_with("0d") {
+        10
+    } else if num.chars().any(|c| hex.contains(&c)) {
         println!("Assuming base is 16");
+        skip_prefix = false;
         16
     } else {
         println!("Assuming base is 10");
+        skip_prefix = false;
         10
     };
 
-    if number_base != 10 {
-        number = number.chars().skip(2).collect();
+    if skip_prefix {
+        num = num.chars().skip(2).collect();
     }
 
-    let result = isize::from_str_radix(&number, number_base);
+    let result = isize::from_str_radix(&num, number_base);
 
     if result.is_err() {
         println!("{color_red}Could not parse number{RESET}");
