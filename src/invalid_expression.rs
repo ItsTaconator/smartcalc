@@ -17,3 +17,12 @@ impl Display for InvalidExpression {
         write!(f, "{}", self.message)
     }
 }
+
+
+impl InvalidExpression {
+    pub(crate) fn new<S: AsRef<str>>(message: S) -> Self {
+        InvalidExpression {
+            message: message.as_ref().to_string(),
+        }
+    }
+}
